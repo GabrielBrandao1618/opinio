@@ -69,13 +69,13 @@ impl CompletionNode {
             self.add_branch_from_word(word);
         }
     }
-    pub fn get_all_suggestions(&self) -> Vec<String> {
+    pub fn get_all_suggestions_recur(&self) -> Vec<String> {
         if self.branches.len() == 0 {
             return vec![self.token.to_string()];
         }
         let mut completions: Vec<String> = vec![];
         for branch in &self.branches {
-            for completion in branch.get_all_suggestions() {
+            for completion in branch.get_all_suggestions_recur() {
                 completions.push(format!("{a}{completion}", a = self.token));
             }
         }
@@ -84,6 +84,14 @@ impl CompletionNode {
         }
 
         completions
+    }
+    pub fn get_all_suggestions(&self) -> Vec<String> {
+        let suggestions = self
+            .get_all_suggestions_recur()
+            .into_iter()
+            .map(|sugg| sugg[1..sugg.len()].to_string())
+            .collect();
+        suggestions
     }
     pub fn get_word_suggestions(&mut self, word: &str) -> Vec<String> {
         if let Some(target_branch) = self.branch_by_word(word) {
@@ -98,7 +106,7 @@ async fn main() {
     let mut tree = CompletionNode::new('0');
     let words = GithubWords::get_words().await;
     tree.load_dataset(words);
-    let suggestions = tree.get_word_suggestions("appl");
+    let suggestions = tree.get_word_suggestions("drag");
     for suggestion in suggestions {
         println!("{suggestion}");
     }
