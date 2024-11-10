@@ -12,7 +12,7 @@ impl WordsProvider for GithubWords {
         if let Ok(res) = response {
             if let Ok(text) = res.text().await {
                 let split_words = text.split("\n");
-                split_words.for_each(|word| words.push(word.to_owned()));
+                split_words.for_each(|word| words.push(word.to_owned().to_ascii_lowercase()));
             }
         }
         words

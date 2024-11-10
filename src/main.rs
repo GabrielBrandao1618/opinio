@@ -7,6 +7,7 @@ mod words;
 struct CompletionNode {
     pub token: char,
     branches: Vec<CompletionNode>,
+    is_ending: bool,
 }
 
 impl CompletionNode {
@@ -14,21 +15,25 @@ impl CompletionNode {
         Self {
             token,
             branches: vec![],
+            is_ending: false,
+        }
+    }
+    pub fn add_branch_from_word_chars(&mut self, mut word: Peekable<Chars<'_>>) {
+        if let Some(first_char) = word.next() {
+            if let Some(existing_branch) = self.branch_by_char(first_char) {
+                existing_branch.add_branch_from_word_chars(word);
+            } else {
+                let mut new_branch = CompletionNode::new(first_char);
+                new_branch.add_branch_from_word_chars(word);
+                self.branches.push(new_branch);
+            }
+        } else {
+            self.is_ending = true
         }
     }
     pub fn add_branch_from_word(&mut self, word: &str) {
-        // TODO: Indicate whether a branch is a word ending of not, so we don't just compute the
-        // longer completion result
-        let first_char = word.chars().next();
-        if let Some(first) = first_char {
-            if let Some(existing_branch) = self.branch_by_char(first) {
-                existing_branch.add_branch_from_word(&word[1..word.len()]);
-            } else {
-                let mut new_branch = CompletionNode::new(first);
-                new_branch.add_branch_from_word(&word[1..word.len()]);
-                self.branches.push(new_branch);
-            }
-        }
+        let word_chars = word.chars().peekable();
+        self.add_branch_from_word_chars(word_chars);
     }
     pub fn branch_by_char(&mut self, branch: char) -> Option<&mut CompletionNode> {
         for root in &mut self.branches {
@@ -73,6 +78,9 @@ impl CompletionNode {
             for completion in branch.get_all_suggestions() {
                 completions.push(format!("{a}{completion}", a = self.token));
             }
+        }
+        if self.is_ending {
+            completions.push(self.token.to_string());
         }
 
         completions
