@@ -17,8 +17,9 @@ async fn main() {
         tree.load_dataset(words);
         let suggestions = tree.get_word_suggestions(&word_arg);
         for suggestion in suggestions {
-            println!("{suggestion}");
+            println!("{word_arg}{suggestion}");
         }
+    } else {
+        println!("No word was provided");
     }
-    println!("No word was provided");
 }
