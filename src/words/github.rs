@@ -1,9 +1,14 @@
 use crate::words::WordsProvider;
 
 pub struct GithubWords {}
+impl GithubWords {
+    pub fn new() -> Self {
+        Self {}
+    }
+}
 
 impl WordsProvider for GithubWords {
-    async fn get_words() -> Vec<String> {
+    async fn get_words(&self) -> Vec<String> {
         let mut words = vec![];
         let response = reqwest::get(
             "https://raw.githubusercontent.com/dwyl/english-words/refs/heads/master/words.txt",
