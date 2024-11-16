@@ -9,12 +9,16 @@ use completion::CompletionNode;
 
 #[tokio::main]
 async fn main() {
-    let mut tree = CompletionNode::new('0');
-    let words_provider = FsCachedWords::new(GithubWords::new());
-    let words = words_provider.get_words().await;
-    tree.load_dataset(words);
-    let suggestions = tree.get_word_suggestions("drag");
-    for suggestion in suggestions {
-        println!("{suggestion}");
+    let mut cli_args = std::env::args();
+    if let Some(word_arg) = cli_args.nth(1) {
+        let mut tree = CompletionNode::new('0');
+        let words_provider = FsCachedWords::new(GithubWords::new());
+        let words = words_provider.get_words().await;
+        tree.load_dataset(words);
+        let suggestions = tree.get_word_suggestions(&word_arg);
+        for suggestion in suggestions {
+            println!("{suggestion}");
+        }
     }
+    println!("No word was provided");
 }
