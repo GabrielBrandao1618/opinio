@@ -27,11 +27,11 @@ impl CompletionNode {
             self.is_ending = true
         }
     }
-    pub fn add_branch_from_word(&mut self, word: &str) {
+    fn add_branch_from_word(&mut self, word: &str) {
         let word_chars = word.chars().peekable();
         self.add_branch_from_word_chars(word_chars);
     }
-    pub fn branch_by_char(&mut self, branch: char) -> Option<&mut CompletionNode> {
+    fn branch_by_char(&mut self, branch: char) -> Option<&mut CompletionNode> {
         for root in &mut self.branches {
             if root.token == branch {
                 return Some(root);
@@ -55,7 +55,7 @@ impl CompletionNode {
         }
         None
     }
-    pub fn branch_by_word(&mut self, word: &str) -> Option<&mut CompletionNode> {
+    fn branch_by_word(&mut self, word: &str) -> Option<&mut CompletionNode> {
         let word_chars = word.chars().peekable();
         let found_branch = self.branch_by_word_chars(word_chars);
         return found_branch;
@@ -65,7 +65,7 @@ impl CompletionNode {
             self.add_branch_from_word(word);
         }
     }
-    pub fn get_all_suggestions_recur(&self) -> Vec<String> {
+    fn get_all_suggestions_recur(&self) -> Vec<String> {
         if self.branches.len() == 0 {
             return vec![self.token.to_string()];
         }
@@ -81,7 +81,7 @@ impl CompletionNode {
 
         completions
     }
-    pub fn get_all_suggestions(&self) -> Vec<String> {
+    fn get_all_suggestions(&self) -> Vec<String> {
         let suggestions = self
             .get_all_suggestions_recur()
             .into_iter()
